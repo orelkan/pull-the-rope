@@ -1,0 +1,22 @@
+{
+  "name": "pull-the-rope-server",
+  "version": "1.0.0",
+  "main": "index.js",
+  "author": "orel and shahar",
+  "license": "MIT",
+  "scripts": {
+    "start": "nodemon src/index.ts"
+  },
+  "dependencies": {
+    "express": "^4.17.1",
+    "socket.io": "^2.3.0",
+    "typescript": "^3.9.2"
+  },
+  "devDependencies": {
+    "@types/express": "^4.17.6",
+    "@types/node": "^14.0.1",
+    "@types/socket.io": "^2.1.4",
+    "nodemon": "^2.0.4",
+    "ts-node": "^8.10.1"
+  }
+}
