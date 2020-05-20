@@ -3,18 +3,18 @@ import socketIOClient from "socket.io-client";
 const ENDPOINT = "http://127.0.0.1:5000";
 
 function App() {
-  const [response, setResponse] = useState("");
+  const [response, setResponse] = useState(false);
 
   useEffect(() => {
     const socket = socketIOClient(ENDPOINT);
-    socket.on("FromAPI", (data: string) => {
+    socket.on("InQueue", (data: boolean) => {
       setResponse(data);
     });
   }, []);
 
   return (
     <p>
-      It's <time dateTime={response}>{response}</time>
+      In Queue: {response.toString()}
     </p>
   );
 }
