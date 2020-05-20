@@ -2,7 +2,8 @@ import { Socket, Server } from "socket.io";
 import { v4 as uuid } from 'uuid';
 
 interface GameSocket extends Socket {
-  roomId: string
+  roomId: string;
+  inLobby: boolean;
 }
 
 interface Room {
@@ -12,46 +13,38 @@ interface Room {
 }
 
 const users: Record<string, GameSocket> = {};
-const waitingList: Socket[] = [];
 const rooms: Record<string, Room> = {};
 
-function joinSocketsToRoom(socket1: GameSocket, socket2: GameSocket, roomId: string) {
-  socket1.join(roomId);
-  socket2.join(roomId);
-  socket1.roomId = roomId;
-  socket2.roomId = roomId;
+function joinSocketToRoom(socket: GameSocket, roomId: string) {
+  socket.join(roomId);
+  socket.inLobby = false;
+  socket.roomId = roomId;
+  rooms[roomId].players.push(socket);
 }
 
 export default function initSocket(io: Server) {
   function onConnection(socket: GameSocket) {
     console.log('New client connected:', socket.id);
+    socket.inLobby = true;
     users[socket.id] = socket;
 
-    if (waitingList.length > 0) {
-      const waitingSocket = waitingList.shift() as GameSocket;
-      const roomId = `${socket.id}-${waitingSocket.id}`;
-      joinSocketsToRoom(socket, waitingSocket, roomId);
-      io.to(roomId).emit("InQueue", false);
-      console.log('Clients connected to room:', roomId);
-    } else {
-      socket.emit("InQueue", true);
-      waitingList.push(socket);
-    }
+    socket.emit("sendRooms", rooms);
 
     socket.on("createRoom", (roomName: string) => {
       const room: Room = {
         name: roomName,
         id: uuid(),
-        players: [socket]
+        players: []
       };
       rooms[room.id] = room;
+      joinSocketToRoom(socket, room.id);
       socket.emit("roomCreated", room);
     });
 
     socket.on("joinRoom", (roomId: string) => {
       const room = rooms[roomId];
       if (room && (room.players.length === 1) && (room.players[0].id !== socket.id)) {
-        room.players.push(socket);
+        joinSocketToRoom(socket, roomId);
         socket.emit("joinedRoom", room);
       }
     });

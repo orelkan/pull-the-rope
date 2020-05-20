@@ -7,7 +7,7 @@ function App() {
 
   useEffect(() => {
     const socket = socketIOClient(ENDPOINT);
-    socket.on("InQueue", (data: boolean) => {
+    socket.on("sendRooms", (data: boolean) => {
       setResponse(data);
     });
   }, []);
