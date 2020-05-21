@@ -1,16 +1,6 @@
 import { Socket, Server } from "socket.io";
 import { v4 as uuid } from 'uuid';
-
-interface GameSocket extends Socket {
-  roomId: string;
-  inLobby: boolean;
-}
-
-interface Room {
-  name: string,
-  id: string,
-  players: Socket[]
-}
+import { GameSocket, Room } from '@pull-the-rope/common';
 
 const users: Record<string, GameSocket> = {};
 const rooms: Record<string, Room> = {};
