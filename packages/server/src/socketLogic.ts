@@ -1,15 +1,15 @@
-import { Socket, Server } from "socket.io";
+import { Server } from "socket.io";
 import { v4 as uuid } from 'uuid';
-import { GameSocket, Room } from '@pull-the-rope/common';
+import { GameSockets, Rooms, GameSocket, Room } from '@pull-the-rope/common';
 
-const users: Record<string, GameSocket> = {};
-const rooms: Record<string, Room> = {};
+const users: GameSockets = {};
+let rooms: Rooms = {};
 
 function joinSocketToRoom(socket: GameSocket, roomId: string) {
   socket.join(roomId);
   socket.inLobby = false;
   socket.roomId = roomId;
-  rooms[roomId].players.push(socket);
+  rooms[roomId].playersId.push(socket.id)
 }
 
 export default function initSocket(io: Server) {
@@ -24,18 +24,20 @@ export default function initSocket(io: Server) {
       const room: Room = {
         name: roomName,
         id: uuid(),
-        players: []
+        playersId: []
       };
       rooms[room.id] = room;
       joinSocketToRoom(socket, room.id);
       socket.emit("roomCreated", room);
+      socket.emit("sendRooms", rooms);
     });
 
     socket.on("joinRoom", (roomId: string) => {
       const room = rooms[roomId];
-      if (room && (room.players.length === 1) && (room.players[0].id !== socket.id)) {
+      if (room && (room.playersId.length === 1) && (room.playersId[0] !== socket.id)) {
         joinSocketToRoom(socket, roomId);
         socket.emit("joinedRoom", room);
+        socket.emit("sendRooms", rooms);
       }
     });
 
