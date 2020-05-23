@@ -8,6 +8,6 @@
         "client": "yarn workspace @pull-the-rope/client",
         "common": "yarn workspace @pull-the-rope/common",
         "start-client": "cd packages/client && yarn start",
-        "start-backend": "nodemon packages/server/src/index.ts"
+        "start-server": "nodemon packages/server/src/index.ts"
       }
 }
